@@ -1,6 +1,5 @@
-
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, PhotoImage
 import webbrowser
 
 class DeskOrganizerApp:
@@ -32,6 +31,11 @@ class DeskOrganizerApp:
         self.item_listbox.grid(row=5, column=0, columnspan=3)
 
         tk.Button(self.root, text="쇼핑몰에서 검색", command=self.search_online).grid(row=6, column=0, columnspan=3)
+
+        # 이미지 추가
+        self.img = PhotoImage(file="desk.png")  # 이미지 파일 경로 변경 필요
+        self.img_label = tk.Label(self.root, image=self.img)
+        self.img_label.grid(row=7, column=0, columnspan=3)
 
     def save_desk_size(self):
         try:
