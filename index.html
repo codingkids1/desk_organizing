@@ -1,63 +1,84 @@
-import tkinter as tk
-import random
-from PIL import Image, ImageTk
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4x4 슬라이딩 퍼즐</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 5px;
+            background: #333;
+            padding: 5px;
+            border-radius: 10px;
+        }
+        .tile {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            background: #fff;
+            cursor: pointer;
+            user-select: none;
+        }
+        .empty {
+            background: none;
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+    <div class="puzzle-container" id="puzzle"></div>
+    <script>
+        const size = 4;
+        let tiles = [...Array(size * size).keys()].slice(1).concat(null);
 
-class SlidingPuzzle:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("4x4 슬라이딩 퍼즐")
-        self.tiles = list(range(1, 16)) + [None]
-        random.shuffle(self.tiles)
-        self.load_images()
-        self.create_widgets()
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
 
-    def load_images(self):
-        original_image = Image.open("/Users/checkx/Downloads/KakaoTalk_Photo_2025-03-22-17-23-35.png")  # 사용할 이미지 파일
-        self.tile_images = []
-        img_size = original_image.size[0] // 4  # 4x4 퍼즐 조각 크기
+        function createPuzzle() {
+            shuffle(tiles);
+            const puzzle = document.getElementById("puzzle");
+            puzzle.innerHTML = "";
+            tiles.forEach((num, index) => {
+                const tile = document.createElement("div");
+                tile.className = "tile";
+                if (num === null) {
+                    tile.classList.add("empty");
+                } else {
+                    tile.textContent = num;
+                    tile.addEventListener("click", () => moveTile(index));
+                }
+                puzzle.appendChild(tile);
+            });
+        }
 
-        for i in range(4):
-            for j in range(4):
-                if i * 4 + j < 15:
-                    cropped = original_image.crop((j * img_size, i * img_size, (j + 1) * img_size, (i + 1) * img_size))
-                    self.tile_images.append(ImageTk.PhotoImage(cropped))
-                else:
-                    self.tile_images.append(None)
+        function moveTile(index) {
+            const emptyIndex = tiles.indexOf(null);
+            const moves = [emptyIndex - 1, emptyIndex + 1, emptyIndex - size, emptyIndex + size];
+            if (moves.includes(index)) {
+                [tiles[emptyIndex], tiles[index]] = [tiles[index], tiles[emptyIndex]];
+                createPuzzle();
+            }
+        }
 
-    def create_widgets(self):
-        self.buttons = []
-        for i in range(4):
-            row = []
-            for j in range(4):
-                num = self.tiles[i * 4 + j]
-                if num is not None:
-                    btn = tk.Button(self.root, image=self.tile_images[num - 1], command=lambda i=i, j=j: self.move_tile(i, j))
-                else:
-                    btn = tk.Button(self.root, text="", width=80, height=80, state=tk.DISABLED)
-                btn.grid(row=i, column=j)
-                row.append(btn)
-            self.buttons.append(row)
-
-    def move_tile(self, row, col):
-        empty_row, empty_col = self.find_empty()
-        if abs(empty_row - row) + abs(empty_col - col) == 1:
-            self.tiles[empty_row * 4 + empty_col], self.tiles[row * 4 + col] = self.tiles[row * 4 + col], self.tiles[empty_row * 4 + empty_col]
-            self.update_buttons()
-
-    def find_empty(self):
-        index = self.tiles.index(None)
-        return index // 4, index % 4
-
-    def update_buttons(self):
-        for i in range(4):
-            for j in range(4):
-                num = self.tiles[i * 4 + j]
-                if num is not None:
-                    self.buttons[i][j].config(image=self.tile_images[num - 1], state=tk.NORMAL)
-                else:
-                    self.buttons[i][j].config(text="", state=tk.DISABLED)
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = SlidingPuzzle(root)
-    root.mainloop()
+        createPuzzle();
+    </script>
+</body>
+</html>
