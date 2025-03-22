@@ -1,1 +1,65 @@
 
+import tkinter as tk
+from tkinter import messagebox
+import webbrowser
+
+class DeskOrganizerApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("책상 정리 도우미")
+        self.items = []
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        tk.Label(self.root, text="책상의 가로(cm):").grid(row=0, column=0)
+        tk.Label(self.root, text="책상의 세로(cm):").grid(row=1, column=0)
+
+        self.width_entry = tk.Entry(self.root)
+        self.height_entry = tk.Entry(self.root)
+        self.width_entry.grid(row=0, column=1)
+        self.height_entry.grid(row=1, column=1)
+
+        tk.Button(self.root, text="책상 크기 저장", command=self.save_desk_size).grid(row=2, column=0, columnspan=2)
+        tk.Button(self.root, text="필요한 오거나이저 찾기", command=self.find_organizers).grid(row=3, column=0, columnspan=2)
+
+        tk.Label(self.root, text="책상 위의 물건:").grid(row=4, column=0)
+        self.item_entry = tk.Entry(self.root)
+        self.item_entry.grid(row=4, column=1)
+        tk.Button(self.root, text="추가", command=self.add_item).grid(row=4, column=2)
+
+        self.item_listbox = tk.Listbox(self.root, height=5)
+        self.item_listbox.grid(row=5, column=0, columnspan=3)
+
+        tk.Button(self.root, text="쇼핑몰에서 검색", command=self.search_online).grid(row=6, column=0, columnspan=3)
+
+    def save_desk_size(self):
+        try:
+            self.width = float(self.width_entry.get())
+            self.height = float(self.height_entry.get())
+            messagebox.showinfo("저장 완료", f"책상 크기: {self.width}cm x {self.height}cm 저장됨.")
+        except ValueError:
+            messagebox.showerror("입력 오류", "숫자를 입력하세요.")
+
+    def find_organizers(self):
+        if hasattr(self, 'width') and hasattr(self, 'height'):
+            messagebox.showinfo("오거나이저 추천", "쇼핑몰에서 책상 크기에 맞는 오거나이저를 검색하세요!")
+        else:
+            messagebox.showerror("오류", "먼저 책상 크기를 저장하세요.")
+
+    def add_item(self):
+        item = self.item_entry.get().strip()
+        if item:
+            self.items.append(item)
+            self.item_listbox.insert(tk.END, item)
+            self.item_entry.delete(0, tk.END)
+
+    def search_online(self):
+        query = "책상 정리 오거나이저"
+        url = f"https://www.google.com/search?q={query}"
+        webbrowser.open(url)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = DeskOrganizerApp(root)
+    root.mainloop()
